@@ -3,8 +3,9 @@
 
 import { extractIngredients } from '@/ai/flows/extract-ingredients';
 import { suggestSaferAlternatives } from '@/ai/flows/suggest-safer-alternatives';
-import { getUnknownIngredientInfo } from '@/ai/flows/get-ingredient-info';
-import { getIngredientDetails as getLocalIngredientDetails } from '@/lib/ingredient-data';
+import { getIngredientsAnalysis } from '@/ai/flows/get-ingredients-analysis';
+// getLocalIngredientDetails is no longer the primary source for detailed info.
+// import { getIngredientDetails as getLocalIngredientDetails } from '@/lib/ingredient-data';
 import type { ProcessedScanData, Ingredient, AlternativeProduct } from '@/lib/types';
 
 async function fileToDataUri(file: File): Promise<string> {
@@ -38,41 +39,32 @@ export async function processImageAction(
     
     const extractedIngredientNames = extractionResult.ingredients;
 
-    const detailedIngredientsPromises: Promise<Ingredient>[] = extractedIngredientNames.map(async (name) => {
-      let details = getLocalIngredientDetails(name);
-      if (details.riskLevel === 'Unknown' && details.description.includes('No detailed information available')) {
-        // Ingredient not found or lacks details in local DB, try AI fallback
-        try {
-          const aiFallbackData = await getUnknownIngredientInfo({ ingredientName: name });
-          if (aiFallbackData) {
-            details.description = aiFallbackData.description;
-            details.healthImpact = aiFallbackData.healthImpact;
-            // Risk level remains 'Unknown' as AI fallback doesn't determine this
-          }
-        } catch (aiError) {
-          console.warn(`AI fallback failed for ingredient ${name}:`, aiError);
-          // Keep the 'Unknown' details from local DB
-        }
-      }
-      return details;
-    });
+    // Get detailed analysis from AI
+    const analysisResults = await getIngredientsAnalysis({ ingredientNames: extractedIngredientNames });
 
-    const detailedIngredients = await Promise.all(detailedIngredientsPromises);
+    const detailedIngredients: Ingredient[] = analysisResults.map(item => ({
+      name: item.ingredient,
+      description: item.description,
+      purpose: item.purpose,
+      healthImpact: item.health_impact,
+      riskLevel: item.risk_level,
+      safe_alternative: item.safe_alternative,
+    }));
 
     let alternatives: AlternativeProduct[] = [];
-    // Suggest alternatives if high or medium risk ingredients are present
-    const harmfulIngredients = detailedIngredients
+    // Suggest product alternatives if high or medium risk ingredients are present
+    const harmfulIngredientsForProductAlternatives = detailedIngredients
       .filter(ing => ing.riskLevel === 'High' || ing.riskLevel === 'Medium')
       .map(ing => ing.name);
 
-    if (harmfulIngredients.length > 0) {
+    if (harmfulIngredientsForProductAlternatives.length > 0) {
       try {
-        const alternativesResult = await suggestSaferAlternatives({ ingredients: harmfulIngredients });
+        const alternativesResult = await suggestSaferAlternatives({ ingredients: harmfulIngredientsForProductAlternatives });
         if (alternativesResult && alternativesResult.alternativeProducts) {
           alternatives = alternativesResult.alternativeProducts;
         }
       } catch (altError) {
-         console.warn(`Suggesting alternatives failed:`, altError);
+         console.warn(`Suggesting product alternatives failed:`, altError);
          // Proceed without product-level alternatives if this step fails
       }
     }
@@ -80,7 +72,7 @@ export async function processImageAction(
     return {
       data: {
         detailedIngredients,
-        alternatives,
+        alternatives, // Product-level alternatives
       },
       error: null,
       message: "Ingredients processed successfully."
@@ -88,7 +80,6 @@ export async function processImageAction(
 
   } catch (error) {
     console.error('Error processing image:', error);
-    // Check if error is an object and has a message property
     const errorMessage = (typeof error === 'object' && error !== null && 'message' in error) 
                          ? String(error.message) 
                          : 'An unexpected error occurred while processing the image. Please try again.';

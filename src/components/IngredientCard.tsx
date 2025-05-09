@@ -1,7 +1,7 @@
 import type { Ingredient } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShieldAlert, ShieldCheck, ShieldQuestion, AlertTriangle, Leaf } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, ShieldQuestion, AlertTriangle, Leaf, Info } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
@@ -19,7 +19,6 @@ const IngredientCard = ({ ingredient }: IngredientCardProps) => {
           </Badge>
         );
       case 'Medium':
-        // Using accent color (Orange) for Medium Risk
         return (
           <Badge variant="default" className="bg-accent text-accent-foreground hover:bg-accent/90">
             <AlertTriangle className="mr-1 h-4 w-4" /> Medium Risk
@@ -31,10 +30,12 @@ const IngredientCard = ({ ingredient }: IngredientCardProps) => {
             <ShieldAlert className="mr-1 h-4 w-4" /> High Risk
           </Badge>
         );
-      default:
+      // 'Unknown' case might not be hit if AI always classifies as L/M/H as per schema
+      // Defaulting to secondary badge for safety, though schema enforces L/M/H from AI.
+      default: 
         return (
           <Badge variant="secondary">
-            <ShieldQuestion className="mr-1 h-4 w-4" /> Unknown Risk
+            <ShieldQuestion className="mr-1 h-4 w-4" /> Unknown
           </Badge>
         );
     }
@@ -56,24 +57,27 @@ const IngredientCard = ({ ingredient }: IngredientCardProps) => {
             </AccordionTrigger>
             <AccordionContent className="space-y-3 pt-2 text-sm">
               <div>
-                <strong className="font-medium text-foreground/90">Description:</strong>
+                <strong className="font-medium text-foreground/90 flex items-center">
+                   <Info className="h-4 w-4 mr-1 text-blue-500" />
+                  Description:
+                </strong>
                 <p className="text-muted-foreground leading-relaxed">{ingredient.description}</p>
+              </div>
+               <div>
+                <strong className="font-medium text-foreground/90">Purpose:</strong>
+                <p className="text-muted-foreground leading-relaxed">{ingredient.purpose}</p>
               </div>
               <div>
                 <strong className="font-medium text-foreground/90">Health Impact:</strong>
                 <p className="text-muted-foreground leading-relaxed">{ingredient.healthImpact}</p>
               </div>
-              {ingredient.alternatives && ingredient.alternatives.length > 0 && (
+              {ingredient.safe_alternative && (
                 <div>
                   <strong className="font-medium text-foreground/90 flex items-center">
                     <Leaf className="h-4 w-4 mr-1 text-green-600" />
-                    Ingredient Alternatives:
+                    Safer Alternative (Ingredient):
                   </strong>
-                  <ul className="list-disc list-inside pl-4 space-y-1 text-muted-foreground">
-                    {ingredient.alternatives.map((alt, index) => (
-                      <li key={index}>{alt}</li>
-                    ))}
-                  </ul>
+                  <p className="text-muted-foreground leading-relaxed">{ingredient.safe_alternative}</p>
                 </div>
               )}
             </AccordionContent>

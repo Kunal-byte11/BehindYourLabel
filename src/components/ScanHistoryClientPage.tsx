@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { History, Trash2, Eye, ShieldAlert, ShieldCheck, ShieldQuestion, AlertTriangle, Info } from 'lucide-react';
+import { History, Trash2, Eye, ShieldAlert, ShieldCheck, ShieldQuestion, AlertTriangle, Info, Leaf } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import LoadingSpinner from './LoadingSpinner'; // Assuming LoadingSpinner exists
+import LoadingSpinner from './LoadingSpinner'; 
 
 const ScanHistoryClientPage = () => {
   const [scanHistory, setScanHistory] = useLocalStorage<ScanResult[]>('scanHistory', []);
@@ -39,15 +39,17 @@ const ScanHistoryClientPage = () => {
   };
   
   const getRiskBadgeForHistory = (riskLevel: Ingredient['riskLevel'] | undefined) => {
-    switch (riskLevel) {
+    // Ensure riskLevel is one of the defined types, default to secondary if somehow undefined
+    const validRiskLevel = riskLevel && ['Low', 'Medium', 'High'].includes(riskLevel) ? riskLevel : undefined;
+    switch (validRiskLevel) {
       case 'Low':
         return <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white text-xs shrink-0"><ShieldCheck className="mr-1 h-3 w-3" />Low</Badge>;
       case 'Medium':
         return <Badge variant="default" className="bg-accent text-accent-foreground hover:bg-accent/90 text-xs shrink-0"><AlertTriangle className="mr-1 h-3 w-3" />Medium</Badge>;
       case 'High':
         return <Badge variant="destructive" className="text-xs shrink-0"><ShieldAlert className="mr-1 h-3 w-3" />High</Badge>;
-      default:
-        return <Badge variant="secondary" className="text-xs shrink-0"><ShieldQuestion className="mr-1 h-3 w-3" />Unknown</Badge>;
+      default: // Covers undefined or 'Unknown' if it were possible
+        return <Badge variant="secondary" className="text-xs shrink-0"><ShieldQuestion className="mr-1 h-3 w-3" />N/A</Badge>;
     }
   };
 
@@ -129,7 +131,6 @@ const ScanHistoryClientPage = () => {
                         </div>
                         <div className="flex items-center space-x-2 mt-2 sm:mt-0 flex-shrink-0 self-end sm:self-center">
                             <Badge variant="outline" className="text-xs sm:text-sm whitespace-nowrap">{scan.extractedIngredients.length} Ingredients</Badge>
-                           {/* ChevronDown is now part of AccordionTrigger by default in shadcn/ui */}
                         </div>
                     </div>
                 </AccordionTrigger>
@@ -150,7 +151,7 @@ const ScanHistoryClientPage = () => {
 
                 {scan.suggestedAlternatives && scan.suggestedAlternatives.length > 0 && (
                   <div className="mb-4">
-                    <h4 className="text-md font-semibold mb-2 text-primary">Suggested Alternatives (Products):</h4>
+                    <h4 className="text-md font-semibold mb-2 text-primary">Suggested Alternative Products:</h4>
                     <ul className="space-y-1 list-disc list-inside pl-2 max-h-40 overflow-y-auto text-sm">
                       {scan.suggestedAlternatives.map((alt, idx) => (
                         <li key={idx} className="truncate text-foreground/80" title={alt.name}>{alt.name}</li>
@@ -159,19 +160,17 @@ const ScanHistoryClientPage = () => {
                   </div>
                 )}
 
-                {scan.extractedIngredients.some(ing => ing.alternatives && ing.alternatives.length > 0) && (
+                {scan.extractedIngredients.some(ing => ing.safe_alternative) && (
                    <div className="mb-4">
-                    <h4 className="text-md font-semibold mb-2 text-primary">Ingredient-Specific Alternatives:</h4>
+                    <h4 className="text-md font-semibold mb-2 text-primary flex items-center"><Leaf className="h-4 w-4 mr-1 text-green-600" />Ingredient-Specific Alternatives:</h4>
                      <Accordion type="multiple" collapsible className="w-full text-sm">
-                      {scan.extractedIngredients.filter(ing => ing.alternatives && ing.alternatives.length > 0).map((ing, idx) => (
+                      {scan.extractedIngredients.filter(ing => ing.safe_alternative).map((ing, idx) => (
                         <AccordionItem key={`alt-${idx}`} value={`alt-${ing.name}`} className="border-b border-border/50 last:border-b-0">
                           <AccordionTrigger className="py-2 text-left text-foreground/80 hover:no-underline [&[data-state=open]>svg]:rotate-180">
-                            Alternatives for <span className="font-medium capitalize pl-1">{ing.name}</span>
+                            Alternative for <span className="font-medium capitalize pl-1">{ing.name}</span>
                           </AccordionTrigger>
                           <AccordionContent className="pb-2 pt-1 pl-4">
-                            <ul className="list-disc list-inside space-y-0.5 text-muted-foreground">
-                              {ing.alternatives?.map((alt, altIdx) => <li key={altIdx}>{alt}</li>)}
-                            </ul>
+                            <p className="text-muted-foreground">{ing.safe_alternative}</p>
                           </AccordionContent>
                         </AccordionItem>
                       ))}
