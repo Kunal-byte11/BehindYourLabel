@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google'; // Using Inter as a more modern sans-serif font
+import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import AppHeader from '@/components/AppHeader';
 import { Providers } from '@/lib/providers';
@@ -7,6 +7,11 @@ import { Providers } from '@/lib/providers';
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+});
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
 });
 
 export const metadata: Metadata = {
@@ -29,7 +34,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Behind Your Label" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         <Providers>
           <div className="flex min-h-screen flex-col">
             <AppHeader />
@@ -49,4 +54,3 @@ export default function RootLayout({
     </html>
   );
 }
-
