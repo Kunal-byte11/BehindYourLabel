@@ -1,9 +1,9 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createClient as createSupabaseClient } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,14 +21,24 @@ export default function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false); // To toggle between Sign In and Sign Up
 
-  const supabase = createClient();
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setSupabase(createSupabaseClient());
+  }, []);
 
   const handleAuth = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!supabase) {
+      setError('Supabase client is not initialized. Please try again shortly.');
+      setLoading(false);
+      return;
+    }
 
     if (isSignUp) {
       // Sign Up
@@ -54,7 +64,7 @@ export default function AuthForm() {
           title: "Sign Up Successful!",
           description: "Please check your email to confirm your account.",
         });
-        // Potentially redirect or clear form, user needs to confirm email
+        router.refresh(); 
         setEmail('');
         setPassword('');
         setName('');
@@ -72,8 +82,8 @@ export default function AuthForm() {
           title: "Sign In Successful!",
           description: "Welcome back!",
         });
-        router.push('/'); // Redirect to home page after successful login
-        router.refresh(); // Force refresh to update auth state across app
+        router.push('/'); 
+        router.refresh(); 
       }
     }
     setLoading(false);
@@ -106,7 +116,7 @@ export default function AuthForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={loading}
+                  disabled={loading || !supabase}
                 />
               </div>
               <div className="space-y-2">
@@ -118,7 +128,7 @@ export default function AuthForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={loading}
+                  disabled={loading || !supabase}
                 />
               </div>
             </CardContent>
@@ -134,7 +144,7 @@ export default function AuthForm() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  disabled={loading}
+                  disabled={loading || !supabase}
                 />
               </div>
               <div className="space-y-2">
@@ -146,7 +156,7 @@ export default function AuthForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  disabled={loading}
+                  disabled={loading || !supabase}
                 />
               </div>
               <div className="space-y-2">
@@ -159,7 +169,7 @@ export default function AuthForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  disabled={loading}
+                  disabled={loading || !supabase}
                 />
                  <p className="text-xs text-muted-foreground">Password must be at least 6 characters.</p>
               </div>
@@ -177,7 +187,7 @@ export default function AuthForm() {
           )}
 
           <CardFooter className="flex flex-col">
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading || !supabase}>
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : isSignUp ? (
@@ -187,6 +197,9 @@ export default function AuthForm() {
               )}
               {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
             </Button>
+            {!supabase && !loading && (
+              <p className="text-xs text-muted-foreground mt-2">Initializing authentication...</p>
+            )}
           </CardFooter>
         </form>
       </Tabs>
