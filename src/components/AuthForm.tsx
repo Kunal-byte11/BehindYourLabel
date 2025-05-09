@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -26,7 +27,10 @@ export default function AuthForm() {
   const { toast } = useToast();
 
   useEffect(() => {
-    setSupabase(createSupabaseClient());
+    // Initialize Supabase client only on the client side
+    if (typeof window !== 'undefined') {
+      setSupabase(createSupabaseClient());
+    }
   }, []);
 
   const handleAuth = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -82,7 +86,7 @@ export default function AuthForm() {
           title: "Sign In Successful!",
           description: "Welcome back!",
         });
-        router.push('/'); 
+        router.push('/'); // Redirects to the scan page (home page)
         router.refresh(); 
       }
     }
