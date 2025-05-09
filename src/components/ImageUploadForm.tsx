@@ -1,7 +1,8 @@
+
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useRef, useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { processImageAction } from '@/lib/actions';
 import type { ProcessedScanData, ScanResult } from '@/lib/types';
@@ -32,7 +33,7 @@ function SubmitButton() {
 }
 
 const ImageUploadForm = () => {
-  const [formState, formAction] = useFormState(processImageAction, initialState);
+  const [formState, formAction] = useActionState(processImageAction, initialState);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFileName, setImageFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,8 +51,8 @@ const ImageUploadForm = () => {
       reader.readAsDataURL(file);
       // Clear previous results when new image is selected
       if (formState.data || formState.error) {
-         // This won't directly reset formState from useFormState, but can clear displayed results
-         // A more robust way would be to wrap useFormState or manage results separately.
+         // This won't directly reset formState from useActionState, but can clear displayed results
+         // A more robust way would be to wrap useActionState or manage results separately.
          // For now, rely on user submitting again to get new state.
       }
     } else {
