@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useActionState } from 'react';
+import { useState, useRef, useEffect, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { processImageAction } from '@/lib/actions';
