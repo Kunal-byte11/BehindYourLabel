@@ -73,15 +73,15 @@ const ScanHistoryClientPage = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold flex items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold flex items-center text-center sm:text-left mx-auto sm:mx-0">
           <History className="mr-3 h-8 w-8 text-primary" />
           Scan History
         </h1>
         {scanHistory.length > 0 && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="sm">
+              <Button variant="destructive" size="sm" className="w-full sm:w-auto">
                 <Trash2 className="mr-2 h-4 w-4" /> Clear All History
               </Button>
             </AlertDialogTrigger>
@@ -109,21 +109,21 @@ const ScanHistoryClientPage = () => {
              <AccordionItem value={scan.id} className="border-b-0">
                 <AccordionTrigger className="p-4 hover:no-underline">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center w-full text-left">
-                        <div className="flex items-center mb-2 sm:mb-0">
+                        <div className="flex items-center mb-2 sm:mb-0 w-full sm:w-auto">
                             {scan.imageUrl && (
-                                <div className="relative w-16 h-16 mr-4 rounded-md overflow-hidden border">
+                                <div className="relative w-12 h-12 sm:w-16 sm:h-16 mr-3 sm:mr-4 rounded-md overflow-hidden border flex-shrink-0">
                                 <Image src={scan.imageUrl} alt="Scanned product" layout="fill" objectFit="cover" data-ai-hint="product label"/>
                                 </div>
                             )}
-                            <div>
-                                <h3 className="text-lg font-semibold">{scan.originalImageFileName || 'Scanned Image'}</h3>
+                            <div className="flex-grow min-w-0">
+                                <h3 className="text-base sm:text-lg font-semibold truncate" title={scan.originalImageFileName || 'Scanned Image'}>{scan.originalImageFileName || 'Scanned Image'}</h3>
                                 <p className="text-xs text-muted-foreground">
                                 {new Date(scan.timestamp).toLocaleString()}
                                 </p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-2 mt-2 sm:mt-0">
-                            <Badge variant="outline">{scan.extractedIngredients.length} Ingredients</Badge>
+                        <div className="flex items-center space-x-2 mt-2 sm:mt-0 flex-shrink-0 self-end sm:self-center">
+                            <Badge variant="outline" className="text-xs sm:text-sm whitespace-nowrap">{scan.extractedIngredients.length} Ingredients</Badge>
                             <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 accordion-chevron" />
                         </div>
                     </div>
@@ -132,10 +132,10 @@ const ScanHistoryClientPage = () => {
                 <div>
                   <h4 className="text-md font-semibold mt-2 mb-2">Extracted Ingredients:</h4>
                   {scan.extractedIngredients.length > 0 ? (
-                    <ul className="space-y-1 list-disc list-inside pl-2 max-h-60 overflow-y-auto">
+                    <ul className="space-y-1 list-disc list-inside pl-2 max-h-60 overflow-y-auto text-sm">
                       {scan.extractedIngredients.map((ing, idx) => (
-                        <li key={idx} className="text-sm flex justify-between items-center">
-                          <span className="capitalize">{ing.name}</span>
+                        <li key={idx} className="flex justify-between items-center">
+                          <span className="capitalize truncate pr-2" title={ing.name}>{ing.name}</span>
                           {getRiskBadgeForHistory(ing.riskLevel)}
                         </li>
                       ))}
@@ -145,9 +145,9 @@ const ScanHistoryClientPage = () => {
                 {scan.suggestedAlternatives.length > 0 && (
                   <div className="mt-4">
                     <h4 className="text-md font-semibold mb-2">Suggested Alternatives:</h4>
-                    <ul className="space-y-1 list-disc list-inside pl-2 max-h-40 overflow-y-auto">
+                    <ul className="space-y-1 list-disc list-inside pl-2 max-h-40 overflow-y-auto text-sm">
                       {scan.suggestedAlternatives.map((alt, idx) => (
-                        <li key={idx} className="text-sm">{alt.name}</li>
+                        <li key={idx} className="truncate" title={alt.name}>{alt.name}</li>
                       ))}
                     </ul>
                   </div>
