@@ -1,5 +1,5 @@
 {
-  "name": "Beyond Your Label",
+  "name": "Behind Your Label",
   "short_name": "BYL",
   "description": "Scan product labels and understand ingredients with AI.",
   "icons": [
@@ -22,3 +22,4 @@
   "display": "standalone",
   "orientation": "portrait"
 }
+

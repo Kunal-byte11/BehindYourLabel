@@ -3,7 +3,7 @@ import AuthForm from '@/components/AuthForm';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Login - Beyond Your Label',
+  title: 'Login - Behind Your Label',
   description: 'Login or create an account to manage your scans.',
 };
 
@@ -14,3 +14,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

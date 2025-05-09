@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Beyond Your Label',
+  title: 'Behind Your Label',
   description: 'Scan product labels and understand ingredients with AI.',
 };
 
@@ -26,7 +26,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#6DCC9B" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Beyond Your Label" />
+        <meta name="apple-mobile-web-app-title" content="Behind Your Label" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
@@ -49,3 +49,4 @@ export default function RootLayout({
     </html>
   );
 }
+

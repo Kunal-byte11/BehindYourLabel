@@ -4,12 +4,12 @@
 import React, { useEffect, useState } from 'react'; 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { User } from '@supabase/supabase-js';
+import type { User, SupabaseClient } from '@supabase/supabase-js';
 import BylLogoIcon from '@/components/icons/BylLogoIcon';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, ScanLine, History, LogIn, LogOut, UserCircle } from 'lucide-react'; 
-import { createClient } from '@/lib/supabase/client';
+import { Menu, ScanLine, History, LogIn, LogOut } from 'lucide-react'; 
+import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -23,35 +23,60 @@ import {
 const AppHeader = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
   const router = useRouter();
+  const [supabaseClient, setSupabaseClient] = useState<SupabaseClient | null>(null);
 
   useEffect(() => {
+    // Initialize Supabase client only on the client side after mount
+    setSupabaseClient(createSupabaseBrowserClient());
+  }, []);
+
+  useEffect(() => {
+    if (!supabaseClient) {
+      // Client not yet initialized, loading should remain true.
+      return;
+    }
+
+    setLoading(true); // Indicate loading when we start auth operations
     const fetchUser = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      setUser(currentUser);
-      setLoading(false);
+      try {
+        const { data: { user: currentUser } } = await supabaseClient.auth.getUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (_event === 'SIGNED_OUT') {
-        router.push('/'); // Redirect to home on sign out
+        router.push('/'); 
       }
       if(_event === 'SIGNED_IN'){
-        router.refresh(); // Refresh page to update server components if any
+        router.refresh(); 
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, [supabase, router]);
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [supabaseClient, router]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push('/');
+    if (!supabaseClient) return;
+    try {
+      await supabaseClient.auth.signOut();
+      setUser(null);
+      router.push('/');
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Optionally, show a toast message to the user
+    }
   };
 
   const navItems = [
@@ -69,7 +94,7 @@ const AppHeader = () => {
       <div className="container flex h-16 max-w-screen-2xl items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <BylLogoIcon className="h-8 w-12 text-primary" />
-          <span className="font-bold text-xl sm:inline-block text-foreground">Beyond Your Label</span>
+          <span className="font-bold text-xl sm:inline-block text-foreground">Behind Your Label</span>
         </Link>
         
         <nav className="hidden flex-1 items-center space-x-1 md:flex">
@@ -85,7 +110,7 @@ const AppHeader = () => {
 
         <div className="flex flex-1 items-center justify-end space-x-2">
           {loading ? (
-            <div className="h-8 w-20 animate-pulse rounded-md bg-muted"></div>
+            <div className="h-9 w-9 animate-pulse rounded-full bg-muted"></div>
           ) : user ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -130,7 +155,7 @@ const AppHeader = () => {
                 <div className="flex flex-col space-y-2">
                   <Link href="/" className="mb-4 flex items-center space-x-2 p-2">
                     <BylLogoIcon className="h-8 w-12 text-primary" />
-                    <span className="font-bold text-lg text-foreground">Beyond Your Label</span>
+                    <span className="font-bold text-lg text-foreground">Behind Your Label</span>
                   </Link>
                   {navItems.map((item) => (
                     <Button 
