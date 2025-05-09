@@ -19,7 +19,7 @@ const IngredientCard = ({ ingredient }: IngredientCardProps) => {
           </Badge>
         );
       case 'Medium':
-        // Using accent color (Mustard Yellow) for Medium Risk
+        // Using accent color (Orange) for Medium Risk
         return (
           <Badge variant="default" className="bg-accent text-accent-foreground hover:bg-accent/90">
             <AlertTriangle className="mr-1 h-4 w-4" /> Medium Risk
