@@ -1,52 +1,60 @@
+
+import React from 'react'; // Added import
 import Link from 'next/link';
 import LogoIcon from '@/components/icons/LogoIcon';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, ScanLine, History } from 'lucide-react';
+import { Menu, ScanLine, History, Settings } from 'lucide-react'; // Assuming Settings might be added later
 
 const AppHeader = () => {
   const navItems = [
     { href: '/', label: 'Scan', icon: <ScanLine className="h-5 w-5" /> },
     { href: '/history', label: 'History', icon: <History className="h-5 w-5" /> },
+    // Example: { href: '/settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 max-w-screen-2xl items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <LogoIcon className="h-8 w-8 text-primary" />
-          <span className="font-bold text-xl sm:inline-block">Ingredient Insights</span>
+          <span className="font-bold text-xl sm:inline-block text-foreground">Ingredient Insights</span>
         </Link>
         
-        <nav className="hidden flex-1 items-center space-x-4 md:flex">
+        <nav className="hidden flex-1 items-center space-x-1 md:flex">
           {navItems.map((item) => (
-            <Button key={item.label} variant="ghost" asChild>
-              <Link href={item.href} className="flex items-center gap-2 text-foreground/80 hover:text-foreground">
-                {item.icon}
+            <Button key={item.label} variant="ghost" asChild className="text-sm font-medium text-muted-foreground hover:text-primary">
+              <Link href={item.href} className="flex items-center gap-2">
+                {React.cloneElement(item.icon, { className: "h-5 w-5 text-current" })}
                 {item.label}
               </Link>
             </Button>
           ))}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end space-x-4 md:hidden">
+        <div className="flex flex-1 items-center justify-end space-x-2 md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[240px] p-4">
-              <div className="flex flex-col space-y-4">
-                <Link href="/" className="mb-4 flex items-center space-x-2">
+            <SheetContent side="right" className="w-[260px] p-4 bg-background">
+              <div className="flex flex-col space-y-2">
+                <Link href="/" className="mb-4 flex items-center space-x-2 p-2">
                   <LogoIcon className="h-8 w-8 text-primary" />
-                  <span className="font-bold text-lg">Ingredient Insights</span>
+                  <span className="font-bold text-lg text-foreground">Ingredient Insights</span>
                 </Link>
                 {navItems.map((item) => (
-                  <Button key={item.label} variant="ghost" className="w-full justify-start" asChild>
-                     <Link href={item.href} className="flex items-center gap-2">
-                      {item.icon}
+                  <Button 
+                    key={item.label} 
+                    variant="ghost" 
+                    className="w-full justify-start text-muted-foreground hover:text-primary hover:bg-muted" 
+                    asChild
+                  >
+                     <Link href={item.href} className="flex items-center gap-3 p-3 text-base">
+                      {React.cloneElement(item.icon, { className: "h-5 w-5 text-current" })}
                       {item.label}
                     </Link>
                   </Button>

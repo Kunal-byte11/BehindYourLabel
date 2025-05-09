@@ -4,6 +4,7 @@ export interface Ingredient {
   description: string;
   healthImpact: string;
   riskLevel: 'Low' | 'Medium' | 'High' | 'Unknown';
+  alternatives?: string[]; // Ingredient-specific alternatives
 }
 
 export interface AlternativeProduct {
@@ -15,13 +16,13 @@ export interface AlternativeProduct {
 export interface ScanResult {
   id: string;
   timestamp: number;
-  imageUrl?: string; // Optional: if we store image previews
+  imageUrl?: string; 
+  originalImageFileName?: string; 
   extractedIngredients: Ingredient[];
-  suggestedAlternatives: AlternativeProduct[];
-  originalImageFileName?: string; // To display in history
+  suggestedAlternatives: AlternativeProduct[]; // Product-level alternatives
 }
 
 export interface ProcessedScanData {
   detailedIngredients: Ingredient[];
-  alternatives: AlternativeProduct[];
+  alternatives: AlternativeProduct[]; // Product-level alternatives
 }
