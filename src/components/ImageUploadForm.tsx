@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useActionState } from 'react'; // Corrected import based on React version
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
 import { processImageAction } from '@/lib/actions';
@@ -26,7 +26,11 @@ const initialState: { data: ProcessedScanData | null; error: string | null; mess
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
+    <Button 
+      type="submit" 
+      disabled={pending} 
+      className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground opacity-50 hover:opacity-75 disabled:opacity-30"
+    >
       {pending ? <LoadingSpinner className="h-5 w-5 mr-2" /> : <UploadCloud className="mr-2 h-5 w-5" />}
       {pending ? 'Analyzing...' : 'Scan Ingredients'}
     </Button>
@@ -52,7 +56,7 @@ const ImageUploadForm = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      setShowResults(false); // Hide previous results when new image is selected
+      setShowResults(false); 
     } else {
       setImagePreview(null);
       setImageFileName(null);
@@ -110,7 +114,7 @@ const ImageUploadForm = () => {
       <CardHeader className="bg-muted/50 p-6">
         <CardTitle className="text-3xl font-bold text-center text-primary">
           <ImageIcon className="inline-block mr-2 h-8 w-8" />
-          Ingredient Scanner
+          Inside Label
         </CardTitle>
         <CardDescription className="text-center text-muted-foreground text-base">
           Upload an image of the ingredient list to get AI-powered insights.
@@ -136,7 +140,7 @@ const ImageUploadForm = () => {
             {imageFileName && <p className="text-xs text-muted-foreground mt-1">Selected: {imageFileName}</p>}
           </div>
 
-          {imagePreview && !showResults && ( // Only show preview here if results are not yet shown
+          {imagePreview && !showResults && ( 
             <div className="mt-4 relative group aspect-[16/10] w-full max-w-md mx-auto rounded-lg overflow-hidden border-2 border-dashed border-muted-foreground/50 shadow-inner bg-muted/30 flex items-center justify-center">
               <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="contain" data-ai-hint="product label"/>
               <Button
@@ -176,7 +180,7 @@ const ImageUploadForm = () => {
           
           {formState.data && (
             <div className="mt-2 space-y-8">
-              {imagePreview && ( // Show image preview alongside results
+              {imagePreview && ( 
                 <div className="mb-6">
                   <h2 className="text-2xl font-semibold mb-3 text-primary">Scanned Image</h2>
                   <div className="relative group aspect-[16/10] w-full max-w-md mx-auto rounded-lg overflow-hidden border shadow-md">
